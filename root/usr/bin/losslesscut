@@ -1,0 +1,23 @@
+#!/bin/bash
+
+BIN=/opt/losslesscut/losslesscut
+
+# Wayland check
+if [ "${PIXELFLUX_WAYLAND,,}" == "true" ]; then
+  WAYLAND="--ozone-platform=wayland"
+fi
+
+# Start in the media folder when one is mounted.
+cd /storage 2>/dev/null || cd "${HOME}"
+
+# --no-sandbox: the app runs as a non-root user without the namespaces
+#   Chromium's sandbox needs.
+# --disable-dev-shm-usage: avoid crashes when the container's /dev/shm is small.
+# LOSSLESSCUT_EXTRA_ARGS is split on spaces on purpose.
+# shellcheck disable=SC2086
+exec ${BIN} \
+  --no-sandbox \
+  --disable-dev-shm-usage \
+  ${WAYLAND} \
+  ${LOSSLESSCUT_EXTRA_ARGS} \
+  "$@" > /dev/null 2>&1
